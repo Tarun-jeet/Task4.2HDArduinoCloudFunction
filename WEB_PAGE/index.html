@@ -4,32 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRAFFIC LIGHT SYSTEM</title>
+    <!-- Link to external CSS file for styling -->
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+  
     <div class="container">
         <h1 class="head">TRAFFIC LIGHT CONTROL SYSTEM</h1>
     </div>
 
+ 
     <div class="container2">
+        <!-- Red light toggle with checkbox -->
         <h2>RED LIGHT</h2>
         <input type="checkbox" id="checkRed">
         <label class="toggle" for="checkRed"></label>
 
+        <!-- Green light toggle with checkbox -->
         <h2>GREEN LIGHT</h2>
         <input type="checkbox" id="checkGreen">
         <label class="toggle1" for="checkGreen"></label>
 
+        <!-- Blue light toggle with checkbox -->
         <h2>BLUE LIGHT</h2>
         <input type="checkbox" id="checkBlue">
         <label class="toggle2" for="checkBlue"></label>
     </div>
     
+   
     <script type="module">
+        // Importing Firebase app and database functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-        // Firebase configuration
+        // Firebase configuration object
         const firebaseConfig = {
             apiKey: "AIzaSyDBhDeTt1d3qwmIP5G7suzDxEf4qTtCVx8",
             authDomain: "iot-traffic-light-system.firebaseapp.com",
@@ -41,31 +49,66 @@
             measurementId: "G-QZFGJRTBP9"
         };
 
-        // Initializing Firebase
+        // Initializing Firebase app and connect to the database
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Function made to update Firebase with the toggle status
+        // Function to update the status of a traffic light in Firebase
         function updateTrafficLight(color, status) {
             console.log(`Updating ${color} light to: ${status}`);
+            // giving Reference to the specific traffic light color in the database
             const dbRef = ref(database, `traffic_light/${color}`);
-            set(dbRef, status)
+            // Set the value (on/off) in the database to corresponnding LED
+            set(dbRef, status);
         }
 
-        // Event listeners for the checkboxes
+        // Function to uncheck other lights when one is toggled on
+        function uncheckOthers(selectedCheckboxId) {
+            // Array of checkbox IDs for each light
+            const checkboxes = ['checkRed', 'checkGreen', 'checkBlue'];
+            // Loop through each checkbox and uncheck the ones that are not selected
+            checkboxes.forEach(checkboxId => {
+                if (checkboxId !== selectedCheckboxId) {
+                    document.getElementById(checkboxId).checked = false;
+                    // Update the status of the unchecked light in Firebase
+                    updateTrafficLight(checkboxId.replace('check', '').toLowerCase(), false);
+                }
+            });
+        }
+
+        // Event listener for Red light checkbox
         document.getElementById('checkRed').addEventListener('change', function() {
-            const status = this.checked; 
-            updateTrafficLight('red', status);
+            if (this.checked) {
+                // Uncheck other lights when Red is checked
+                uncheckOthers('checkRed');
+                updateTrafficLight('red', true);
+            } else {
+                updateTrafficLight('red', false);
+            }
         });
 
+        // Event listener for Green light checkbox
         document.getElementById('checkGreen').addEventListener('change', function() {
-            const status = this.checked; 
-            updateTrafficLight('green', status);
+            if (this.checked) {
+                // Uncheck other lights when Green is checked
+                uncheckOthers('checkGreen');
+                updateTrafficLight('green', true);
+            } else {
+      
+                updateTrafficLight('green', false);
+            }
         });
 
+        // Event listener for Blue light checkbox
         document.getElementById('checkBlue').addEventListener('change', function() {
-            const status = this.checked; 
-            updateTrafficLight('blue', status);
+            if (this.checked) {
+                // Uncheck other lights when Blue is checked
+                uncheckOthers('checkBlue');
+                updateTrafficLight('blue', true);
+            } else {
+             
+                updateTrafficLight('blue', false);
+            }
         });
     </script>
 </body>
